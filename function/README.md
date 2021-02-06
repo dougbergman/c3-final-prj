@@ -1,4 +1,5 @@
 ## This folder will contains the Azure function code.
+## Good Luck!
 
 ## Note:
 
