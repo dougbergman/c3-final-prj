@@ -190,4 +190,3 @@ ALTER TABLE ONLY public.attendee
 --
 -- PostgreSQL database dump complete
 --
-

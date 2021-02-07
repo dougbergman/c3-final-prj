@@ -1,0 +1,5 @@
+{
+    "appService.defaultWebAppToDeploy": "None",
+    "python.linting.pylintEnabled": false,
+    "appService.showBuildDuringDeployPrompt": false
+}

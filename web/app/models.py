@@ -1,6 +1,7 @@
-from app import db
 from datetime import datetime
+from app import db
 
+# pylint: disable=no-member
 class Attendee(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     conference_id = db.Column(db.Integer, nullable=False)
@@ -14,6 +15,7 @@ class Attendee(db.Model):
     interests = db.Column(db.Text, nullable=False)
     comments = db.Column(db.Text, nullable=False)
     submitted_date = db.Column(db.DateTime, default=datetime.utcnow)
+    
 
     def __repr__(self):
         return "{} {}".format(self.first_name, self.last_name)

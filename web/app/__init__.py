@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from azure.servicebus import QueueClient
 
 
+
 app = Flask(__name__)
 app.config.from_object('config.DevelopmentConfig')
 
