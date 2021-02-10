@@ -38,7 +38,7 @@ def main(msg: func.ServiceBusMessage):
         print("*** func : get not and subj")
 
         # TODO: Get attendees email and name
-        notification_query = cursor.execute("SELECT message, subject FROM notification WHERE id = {};".format(notification_id))
+       # notification_query = cursor.execute("SELECT message, subject FROM notification WHERE id = {};".format(notification_id))
   
         # TODO: Loop through each attendee and send an email with a personalized subject
         #attendees = Attendee.query.all()

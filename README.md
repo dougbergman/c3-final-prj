@@ -1,71 +1,30 @@
-# TechConf Registration Website
-
-## Project Overview
-The TechConf website allows attendees to register for an upcoming conference. Administrators can also view the list of attendees and notify all attendees via a personalized email message.
-
-The application is currently working but the following pain points have triggered the need for migration to Azure:
- - The web application is not scalable to handle user load at peak
- - When the admin sends out notifications, it's currently taking a long time because it's looping through all attendees, resulting in some HTTP timeout exceptions
- - The current architecture is not cost-effective 
-
-In this project, you are tasked to do the following:
-- Migrate and deploy the pre-existing web app to an Azure App Service
-- Migrate a PostgreSQL database backup to an Azure Postgres database instance
-- Refactor the notification logic to an Azure Function via a service bus queue message
-
-## Dependencies
-
-You will need to install the following locally:
-- [Postgres](https://www.postgresql.org/download/)
-- [Visual Studio Code](https://code.visualstudio.com/download)
-- [Azure Function tools V3](https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local?tabs=windows%2Ccsharp%2Cbash#install-the-azure-functions-core-tools)
-- [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest)
-- [Azure Tools for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=ms-vscode.vscode-node-azure-pack)
-
-## Project Instructions
-
-### Part 1: Create Azure Resources and Deploy Web App
-1. Create a Resource group
-2. Create an Azure Postgres Database single server
-   - Add a new database `techconfdb`
-   - Allow all IPs to connect to database server
-   - Restore the database with the backup located in the data folder
-3. Create a Service Bus resource with a `notificationqueue` that will be used to communicate between the web and the function
-   - Open the web folder and update the following in the `config.py` file
-      - `POSTGRES_URL`
-      - `POSTGRES_USER`
-      - `POSTGRES_PW`
-      - `POSTGRES_DB`
-      - `SERVICE_BUS_CONNECTION_STRING`
-4. Create App Service plan
-5. Create a storage account
-6. Deploy the web app
-
-### Part 2: Create and Publish Azure Function
-1. Create an Azure Function in the `function` folder that is triggered by the service bus queue created in Part 1.
-
-      **Note**: Skeleton code has been provided in the **README** file located in the `function` folder. You will need to copy/paste this code into the `__init.py__` file in the `function` folder.
-      - The Azure Function should do the following:
-         - Process the message which is the `notification_id`
-         - Query the database using `psycopg2` library for the given notification to retrieve the subject and message
-         - Query the database to retrieve a list of attendees (**email** and **first name**)
-         - Loop through each attendee and send a personalized subject message
-         - After the notification, update the notification status with the total number of attendees notified
-2. Publish the Azure Function
-
-### Part 3: Refactor `routes.py`
-1. Refactor the post logic in `web/app/routes.py -> notification()` using servicebus `queue_client`:
-   - The notification method on POST should save the notification object and queue the notification id for the function to pick it up
-2. Re-deploy the web app to publish changes
-
 ## Monthly Cost Analysis
 Complete a month cost analysis of each Azure resource to give an estimate total cost using the table below:
 
 | Azure Resource | Service Tier | Monthly Cost |
 | ------------ | ------------ | ------------ |
-| *Azure Postgres Database* |     |              |
-| *Azure Service Bus*   |         |              |
-| ...                   |         |              |
+| *Azure Postgres Database* |   Basic, 1 vCore(s), 50 GB        |  $5.31        |
+| * webapp                  |   AppSvcPlanProject (F1: Free)    |       0       |
+| * functionapp             |  EastUSLinuxDynamicPlan (Y1: 0)   |         0     |
+| * Application Gateway     |     Standard                      |  $1.91        |
+| *  storage                |        Standard/Hot               |  0.89         |
+|    *event hubs            |         Basic                     |   0.85        |
+
+
+
+Total cost per month estimate
 
 ## Architecture Explanation
 This is a placeholder section where you can provide an explanation and reasoning for your architecture selection for both the Azure Web App and Azure Function.
+
+Function
+   Cost Effectiveness and Architectural decisions
+      Functions are billed based on observed resource consumption measured in gigabyte seconds (GB-s). I selected the basic free tier for the Service Plan because in development, there is limited usage. While there is some cost, it is negligible. Cost for Execution Time of $0.000016/GB-s	4which allows 400,000 GB/second. This translates to $0.20 per million executions. Even in a prodution environment, the traffic is still limited. At most the cost would be < $20/ month for a function tied to the conference app, and most likely < 10. Using a VM was not an option as it was overkill both in cost as well as in function. My time translates to lost income if I have to spent time managing the OS and database systems. Additionally, the VM requires the use of more resources, which require management as well as cost.  The function itself especially with service bus is minimal code to maintain, easy changes and simply redeployment, so no resources required to house codebase.
+Web
+   Cost Effectiveness and Architecdtural decisions
+      I selected the basic free tier the Service Plan to host my webapp because in development. The biggest drawback is that it is an "always pay for the service plan" so there is not really an on-off. However, there is limited usage. Even in a prodution environment, the traffic is still limited to hundreds.  I realize with a webapp I am unable to install specific software, have Limited access to the host server and underlying operating system. Using a VM was not an option as it was overkill both in cost as well as in function. My time translates to lost income if I have to spent time managing the OS and database systems. Additionally, the VM requires the use of more resources, which require management as well as cost.The hardware limitations of webapp easily satisfy the demands of the system. Compare VM vs webpp, for VM I used Number of VMs x Number of Hours Running = Cost. Whereas the webapp is F1 Free	Shared with (60 CPU minutes / day)	, 1 GB memory, and	1.00 GB storage with zero cost. If I ever needed to scale, I could move to the Shared tier, which is $0.013/hour.My selection for a Azure Post Gres Database costs $0.034/hour, but is only used during transactions, so compared to a VM is a streamline solution. Also data storage using Azure Post Gres is dirt cheap since it is only text. The webapp itself especially with service bus is minimal code to maintain if changes are needed, and simply updating. All resources are in the cloud and include autoamtic automatic updates and backups as there is no additional charge for backup storage for up to 100% of your total provisioned server storage. 
+
+
+
+
+
