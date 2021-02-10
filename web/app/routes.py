@@ -30,6 +30,7 @@ def registration():
         try:
             db.session.add(attendee)
             db.session.commit()
+            print("*** registering now!!")
             session['message'] = 'Thank you, {} {}, for registering!'.format(attendee.first_name, attendee.last_name)
             return redirect('/Registration')
         except:
@@ -45,17 +46,20 @@ def registration():
 
 @app.route('/Attendees')
 def attendees():
+    print("*** attendee")
     attendees = Attendee.query.order_by(Attendee.submitted_date).all()
     return render_template('attendees.html', attendees=attendees)
 
 
 @app.route('/Notifications')
 def notifications():
+    print("*** notifications ")
     notifications = Notification.query.order_by(Notification.id).all()
     return render_template('notifications.html', notifications=notifications)
 
 @app.route('/Notification', methods=['POST', 'GET'])
 def notification():
+    print("*** notification ")
     if request.method == 'POST':
         notification = Notification()
         notification.message = request.form['message']
@@ -71,17 +75,30 @@ def notification():
             ## TODO: Refactor This logic into an Azure Function
             ## Code below will be replaced by a message queue
             #################################################
-            attendees = Attendee.query.all()
+            #attendees = Attendee.query.all()
 
-            for attendee in attendees:
-                subject = '{}: {}'.format(attendee.first_name, notification.subject)
-                send_email(attendee.email, subject, notification.message)
-
-            notification.completed_date = datetime.utcnow()
-            notification.status = 'Notified {} attendees'.format(len(attendees))
+            #for attendee in attendees:
+             #   subject = '{}: {}'.format(attendee.first_name, notification.subject)
+              #  send_email(attendee.email, subject, notification.message)
+            print("*** after send mail ")
+            #notification.completed_date = datetime.utcnow()
+            #notification.status = 'Notified {} attendees'.format(len(attendees))
             db.session.commit()
             # TODO Call servicebus queue_client to enqueue notification ID
+           
+            sb = ServiceBusClient.from_connection_string(app.config.get(SERVICE_BUS_CONNECTION_STRING))
+            queue_client = sb.get_queue(SERVICE_BUS_QUEUE_NAME)
+            
+            notifId = notification.id
+            msg = Message(notifId)
+            queue_client.send(msg)
+            
+            
+            print ("before sb client")
 
+
+ 
+            print ("after sb client")
             #################################################
             ## END of TODO
             #################################################
@@ -95,7 +112,9 @@ def notification():
 
 
 
+
 def send_email(email, subject, body):
+    print("*** send email")
     if not app.config.get('SENDGRID_API_KEY'):
         message = Mail(
             from_email=app.config.get('ADMIN_EMAIL_ADDRESS'),

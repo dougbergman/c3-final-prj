@@ -1,0 +1,8 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "DefaultEndpointsProtocol=https;AccountName=csfinalprjsa;AccountKey=YOjpgvjuPnh8Xzj/GV2ufMXF779vU2RH9WL038nquLPtMIDtnIIfG1ZewlXbFPEe9boQYggLstkBGzzL8aIA0g==;EndpointSuffix=core.windows.net",
+    "FinalProjSB_SERVICEBUS": "Endpoint=sb://finalprojsb.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=Vn+xGGe87xdy9Q8i4vDS2TzfOZCq1FgTCU2MWq1RZjU=",
+    "FUNCTIONS_WORKER_RUNTIME": "python"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "scriptFile": "__init__.py",
+  "bindings": [
+    {
+      "name": "msg",
+      "type": "serviceBusTrigger",
+      "direction": "in",
+      "queueName": "notificationqueue",
+      "connection": "Endpoint=sb://finalprojsb.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=Vn+xGGe87xdy9Q8i4vDS2TzfOZCq1FgTCU2MWq1RZjU="
+     }
+  ]
+}
